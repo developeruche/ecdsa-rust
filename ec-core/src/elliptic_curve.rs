@@ -55,7 +55,7 @@ use num_bigint::BigUint;
 ///  - `I + I = 2 * I = I`
 ///
 #[derive(Clone, PartialEq, Debug, )]
-enum CurvePoint {
+pub enum CurvePoint {
     Coordinate(BigUint, BigUint),
     Identity
 }
@@ -97,12 +97,12 @@ impl EllipticCurve {
     }
 
 
-    ///
-    /// Checks if a point A = (x,y) belongs to the elliptic curve:
-    ///
-    /// if `y^2 = x^3 + a * x + b mod p` then returns `true`, if not, returns
-    /// `false`.
-    ///
+    //
+    // Checks if a point A = (x,y) belongs to the elliptic curve:
+    //
+    // if `y^2 = x^3 + a * x + b mod p` then returns `true`, if not, returns
+    // `false`.
+    //
     // pub fn is_on_curve(&self, a: &Point) -> bool {
     //     match a {
     //         CurvePoint::Coordinate(x, y) => {

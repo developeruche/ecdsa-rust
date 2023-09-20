@@ -101,7 +101,7 @@ pub fn check_is_less_than(a: &BigUint, b: &BigUint)  -> bool {
 pub fn params_to_mod_check(a: &BigUint, b: &BigUint, p: &BigUint) -> Result<(), FiniteFieldError> {
     let params_check = check_is_less_than(a, p) && check_is_less_than(b, p);
     if !params_check {
-        return Err(FiniteFieldError::InvalidArgument(format!("a and b has to be greater than p")))
+        return Err(FiniteFieldError::InvalidArgument(format!("a and b has to be greater than p: {}, {}, {}", a, b, p)))
     }
 
     Ok(())
@@ -110,7 +110,7 @@ pub fn params_to_mod_check(a: &BigUint, b: &BigUint, p: &BigUint) -> Result<(), 
 pub fn params_to_mod_check_single_point(a: &BigUint, p: &BigUint) -> Result<(), FiniteFieldError> {
     let params_check = check_is_less_than(a, p);
     if !params_check {
-        return Err(FiniteFieldError::InvalidArgument(format!("a and b has to be greater than p")))
+        return Err(FiniteFieldError::InvalidArgument(format!("a and b has to be greater than p: {}, {}", a, p)))
     }
 
     Ok(())
@@ -129,3 +129,140 @@ pub fn divide(a: &BigUint, b: &BigUint, p: &BigUint) -> Result<BigUint, FiniteFi
     multiplicate(a, &b_inverse, p)
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ===================================
+// TEST ------------------------------
+// ===================================
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_add() {
+        let a = BigUint::from(4u32);
+        let b = BigUint::from(10u32);
+        let p = BigUint::from(11u32);
+
+        let res = add(&a, &b, &p).unwrap();
+        assert_eq!(res, BigUint::from(3u32));
+
+        let a = BigUint::from(10u32);
+        let b = BigUint::from(1u32);
+        let p = BigUint::from(11u32);
+
+        let res = add(&a, &b, &p).unwrap();
+        assert_eq!(res, BigUint::from(0u32));
+
+        let a = BigUint::from(4u32);
+        let b = BigUint::from(10u32);
+        let p = BigUint::from(31u32);
+
+        let res = add(&a, &b, &p).unwrap();
+        assert_eq!(res, BigUint::from(14u32));
+    }
+
+    #[test]
+    fn test_multiply() {
+        let a = BigUint::from(4u32);
+        let b = BigUint::from(10u32);
+        let p = BigUint::from(11u32);
+
+        let res = multiplicate(&a, &b, &p).unwrap();
+        assert_eq!(res, BigUint::from(7u32));
+
+        let p = BigUint::from(51u32);
+
+        let res = multiplicate(&a, &b, &p).unwrap();
+        assert_eq!(res, BigUint::from(40u32));
+    }
+
+    #[test]
+    fn test_inv_add() {
+        let a = BigUint::from(4u32);
+        let p = BigUint::from(51u32);
+
+        let res = inverse_add(&a, &p).unwrap();
+        assert_eq!(res, BigUint::from(47u32));
+
+        let a = BigUint::from(0u32);
+        let p = BigUint::from(51u32);
+
+        let res = inverse_add(&a, &p).unwrap();
+        assert_eq!(res, BigUint::from(0u32));
+
+        let a = BigUint::from(52u32);
+        let p = BigUint::from(51u32);
+
+        assert_eq!(
+            inverse_add(&a, &p),
+            Err(FiniteFieldError::InvalidArgument(format!("a and b has to be greater than p: {}, {}", a, p)))
+        );
+
+        let a = BigUint::from(4u32);
+        let p = BigUint::from(51u32);
+
+        let c_inv = inverse_add(&a, &p);
+
+        assert_eq!(c_inv, Ok(BigUint::from(47u32)));
+        assert_eq!(
+            add(&a, &c_inv.unwrap(), &p),
+            Ok(BigUint::from(0u32))
+        );
+    }
+
+    #[test]
+    fn test_subtract() {
+        // a - a = 0 mod p
+        let a = BigUint::from(4u32);
+        let p = BigUint::from(51u32);
+
+        assert_eq!(subtract(&a, &a, &p), Ok(BigUint::from(0u32)));
+    }
+
+    #[test]
+    fn test_inv_mult() {
+        // 4 * 3 mod 11 = 12 mod 11 = 1
+        let a = BigUint::from(4u32);
+        let p = BigUint::from(11u32);
+
+        let c_inv = inverse_multiplicate_prime(&a, &p);
+
+        assert_eq!(c_inv, Ok(BigUint::from(3u32)));
+        assert_eq!(
+            multiplicate(&a, &c_inv.unwrap(), &p),
+            Ok(BigUint::from(1u32))
+        );
+    }
+
+    #[test]
+    fn test_divide() {
+        // a / a = 1 mod p
+        let a = BigUint::from(4u32);
+        let p = BigUint::from(11u32);
+
+        assert_eq!(divide(&a, &a, &p), Ok(BigUint::from(1u32)));
+    }
+}

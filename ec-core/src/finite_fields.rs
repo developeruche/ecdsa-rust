@@ -83,6 +83,28 @@ pub fn inverse_multiplicate_prime(a: &BigUint, p: &BigUint) -> Result<BigUint, F
 }
 
 
+///
+/// Divides two elements in the set:
+///
+/// `a / b = a * b^(-1) = a mod p`
+///
+pub fn divide(a: &BigUint, b: &BigUint, p: &BigUint) -> Result<BigUint, FiniteFieldError> {
+    params_to_mod_check(a,b,p)?;
+    let b_inverse = inverse_multiplicate_prime(b, p)?;
+
+    multiplicate(a, &b_inverse, p)
+}
+
+
+
+
+
+
+
+
+
+
+
 
 ///
 /// This function check if `a  < b`; if a is b, function would return true
@@ -117,17 +139,6 @@ pub fn params_to_mod_check_single_point(a: &BigUint, p: &BigUint) -> Result<(), 
 }
 
 
-///
-/// Divides two elements in the set:
-///
-/// `a / b = a * b^(-1) = a mod p`
-///
-pub fn divide(a: &BigUint, b: &BigUint, p: &BigUint) -> Result<BigUint, FiniteFieldError> {
-    params_to_mod_check(a,b,p)?;
-    let b_inverse = inverse_multiplicate_prime(b, p)?;
-
-    multiplicate(a, &b_inverse, p)
-}
 
 
 
